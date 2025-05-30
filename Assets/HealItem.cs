@@ -1,16 +1,31 @@
 using UnityEngine;
 
+[RequireComponent(typeof(Collider2D))]
 public class HealingItem : MonoBehaviour
 {
-    public int healAmount = 20;
+    [SerializeField] private int healAmount = 20; // Allows setting this in the Inspector
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        PlayerHealth health = other.GetComponent<PlayerHealth>();
-        if (health != null)
+
+
+        // Check if the collider belongs to the player by tag (optional but safer)
+        if (other.CompareTag("Player"))
         {
-            health.Heal(healAmount);
-            Destroy(gameObject);
+            PlayerHealth playerHealth = other.GetComponent<PlayerHealth>();
+            if (playerHealth != null)
+            {
+                playerHealth.Heal(healAmount);
+                Destroy(gameObject); // Destroys only this instance
+
+                // After healing the player
+                PlayerAudioManager audioManager = other.GetComponent<PlayerAudioManager>();
+                if (audioManager != null)
+                {
+                    audioManager.PlayPickupPotionSound();
+                }
+
+            }
         }
     }
 }

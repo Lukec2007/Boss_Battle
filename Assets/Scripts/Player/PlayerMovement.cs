@@ -2,23 +2,23 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerMovement : MonoBehaviour {
-
+public class PlayerMovement : MonoBehaviour
+{
 	public CharacterController2D controller;
 	public Animator animator;
 
 	public float runSpeed = 40f;
+	public float attackCooldown = 1f; // Time in seconds between attacks
 
-	float horizontalMove = 0f;
-	bool jump = false;
-	bool crouch = false;
-	bool attack = false;
+	private float nextAttackTime = 0f;
+	private float horizontalMove = 0f;
+	private bool jump = false;
+	private bool crouch = false;
+	private bool attack = false;
 
-	// Update is called once per frame
-	void Update () {
-
+	void Update()
+	{
 		horizontalMove = Input.GetAxisRaw("Horizontal") * runSpeed;
-
 		animator.SetFloat("Speed", Mathf.Abs(horizontalMove));
 
 		if (Input.GetButtonDown("Jump"))
@@ -27,16 +27,18 @@ public class PlayerMovement : MonoBehaviour {
 			animator.SetBool("IsJumping", true);
 		}
 
-        if (Input.GetButtonDown("Attack"))
-        {
-            attack = true;
-            animator.SetBool("IsAttacking", true);
-        } else if (Input.GetButtonUp("Attack"))
+		// Attack input with cooldown
+		if (Input.GetButtonDown("Attack") && Time.time >= nextAttackTime)
+		{
+			attack = true;
+			nextAttackTime = Time.time + attackCooldown;
+			animator.SetBool("IsAttacking", true);
+		}
+		else if (Input.GetButtonUp("Attack"))
 		{
 			attack = false;
-            animator.SetBool("IsAttacking", false);
-        }
-
+			animator.SetBool("IsAttacking", false);
+		}
 
 		if (Input.GetButtonDown("Crouch"))
 		{
@@ -46,20 +48,19 @@ public class PlayerMovement : MonoBehaviour {
 		{
 			crouch = false;
 		}
-
 	}
 
-	public void OnLanding ()
+	public void OnLanding()
 	{
 		animator.SetBool("IsJumping", false);
 	}
 
-	public void OnCrouching (bool isCrouching)
+	public void OnCrouching(bool isCrouching)
 	{
 		animator.SetBool("IsCrouching", isCrouching);
 	}
 
-	void FixedUpdate ()
+	void FixedUpdate()
 	{
 		// Move our character
 		controller.Move(horizontalMove * Time.fixedDeltaTime, crouch, jump);

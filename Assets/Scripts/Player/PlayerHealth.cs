@@ -15,6 +15,8 @@ public class PlayerHealth : MonoBehaviour
 	public void TakeDamage(int damage)
 	{
 		currentHealth -= damage;
+		FindObjectOfType<PlayerAudioManager>().PlayHitByEnemySound();
+
 
 		StartCoroutine(DamageAnimation());
 
@@ -26,7 +28,8 @@ public class PlayerHealth : MonoBehaviour
 
 	void Die()
 	{
-		SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+		SceneManager.LoadScene("Lose");
+
 	}
 
 	IEnumerator DamageAnimation()
